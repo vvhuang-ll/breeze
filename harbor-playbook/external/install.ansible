@@ -1,8 +1,8 @@
 - name: setup external harbor
   hosts: harbor
-  user: root
+  user: caicloud
   vars:
-    path: /var/lib/wise2c/tmp/harbor
+    path: /opt/wise2c/tmp/harbor
   tasks:
   - name: setup external harbor
     shell: |

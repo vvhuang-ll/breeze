@@ -1,6 +1,6 @@
 - name: clean crio
   hosts: hosts
-  user: root
+  user: caicloud
   tasks:
   - name: remove crio for Redhat/CentOS
     yum:

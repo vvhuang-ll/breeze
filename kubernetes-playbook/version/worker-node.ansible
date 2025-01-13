@@ -14,7 +14,7 @@
     sed -i "s/127.0.0.1:6443/{{ endpoint }}/g" {{ path }}/worker-join-command.sh
 
 - name: setup node
-  shell: /var/lib/wise2c/tmp/kubernetes/worker-join-command.sh
+  shell: /opt/wise2c/tmp/kubernetes/worker-join-command.sh
   async: 600
 
 - name: update kubelet.conf
@@ -29,11 +29,11 @@
 - name: execute prometheus-fix-worker-nodes script for Redhat/CentOS
   shell: ./prometheus-fix-worker-nodes.sh
   args:
-    chdir: '/var/lib/wise2c/tmp/kubernetes/'
+    chdir: '/opt/wise2c/tmp/kubernetes/'
   when: (ansible_distribution == "RedHat") or (ansible_distribution == "CentOS") or (ansible_distribution == "Rocky") or (ansible_distribution == "AlmaLinux") or (ansible_distribution == "OracleLinux") or (ansible_distribution == "Anolis")
 
 - name: execute prometheus-fix-worker-nodes script for Ubuntu
   shell: ./prometheus-fix-worker-nodes-ubuntu.sh
   args:
-    chdir: '/var/lib/wise2c/tmp/kubernetes/'
+    chdir: '/opt/wise2c/tmp/kubernetes/'
   when: ansible_distribution =="Ubuntu"

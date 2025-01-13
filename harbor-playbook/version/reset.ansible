@@ -1,6 +1,6 @@
 - name: clean harbor
   hosts: harbor
-  user: root
+  user: caicloud
   tasks:
 #  - name: stop & rm harbor
 #    docker_service:

@@ -1,9 +1,9 @@
 - name: init host
   hosts: hosts
-  user: root
+  user: caicloud
   any_errors_fatal: true
   vars:
-    path: /var/lib/wise2c/tmp/crio
+    path: /opt/wise2c/tmp/crio
   tasks:
   - name: check environment
     script: scripts/check_environment.sh
@@ -22,6 +22,7 @@
     shell:
       echo $SSH_CONNECTION | cut -d " " -f 1
     register: ip
+    become: no
 
   - name: add seed to /etc/hosts
     blockinfile:

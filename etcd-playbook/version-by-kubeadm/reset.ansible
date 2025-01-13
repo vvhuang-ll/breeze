@@ -1,6 +1,6 @@
 - name: clean etcd
   hosts: etcd
-  user: root
+  user: caicloud
   tasks:
   - name: stop & rm old etcd container
     containers.podman.podman_container:

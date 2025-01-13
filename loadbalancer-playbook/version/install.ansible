@@ -1,9 +1,9 @@
 - name: setup loadbalancer
   hosts: hosts
-  user: root
+  user: caicloud
   vars:
-    path: /var/lib/wise2c/tmp/loadbalancer
-    cpath: /var/lib/wise2c/loadbalancer
+    path: /opt/wise2c/tmp/loadbalancer
+    cpath: /opt/wise2c/loadbalancer
   tasks:
   - name: make lb dir
     file:
@@ -53,6 +53,7 @@
       registry: '{{ registry_endpoint }}'
       username: '{{ registry_user }}'
       password: '{{ registry_password }}'
+      tlsverify: false
     run_once: true
 
   - name: tag images
@@ -69,6 +70,7 @@
       tag: '{{ item.tag }}'
       push: true
       state: present
+      tlsverify: false
     with_items:
       - { repo: 'wise2c', name: 'k8s-haproxy', tag: '{{ haproxy_version }}' }
       - { repo: 'wise2c', name: 'k8s-keepalived', tag: '{{ keepalived_version }}' }
@@ -98,6 +100,7 @@
       name: haproxy
       image: "{{ registry_endpoint }}/{{ registry_project }}/k8s-haproxy:{{ haproxy_version  }}"
       ports: '{{ ports | d([], true) | list }}'
+      tls_verify: false
       volumes:
       - '{{ cpath }}/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro'
 
@@ -105,6 +108,7 @@
     containers.podman.podman_container:
       name: keepalived
       network_mode: host
+      tls_verify: false
       capabilities:
       - NET_ADMIN
       - NET_RAW

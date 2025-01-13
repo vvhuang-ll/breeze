@@ -1,8 +1,8 @@
 - name: set up kubernetes master nodes
   hosts: master
-  user: root
+  user: caicloud
   vars:
-    path: /var/lib/wise2c/tmp/kubernetes
+    path: /opt/wise2c/tmp/kubernetes
 
   tasks:
   - name: check kubernetes services
@@ -56,9 +56,9 @@
 
 - name: setup kubernetes worker nodes
   hosts: node
-  user: root
+  user: caicloud
   vars:
-    path: /var/lib/wise2c/tmp/kubernetes
+    path: /opt/wise2c/tmp/kubernetes
 
   tasks:
   - name: check kubernetes services
@@ -71,9 +71,9 @@
 
 - name: upgrade kubernetes master nodes
   hosts: master
-  user: root
+  user: caicloud
   vars:
-    path: /var/lib/wise2c/tmp/kubernetes
+    path: /opt/wise2c/tmp/kubernetes
 
   tasks:
   - name: push images
@@ -102,7 +102,7 @@
   hosts: node
   user: root
   vars:
-    path: /var/lib/wise2c/tmp/kubernetes
+    path: /opt/wise2c/tmp/kubernetes
 
   tasks:
   - name: copy upgrade scripts

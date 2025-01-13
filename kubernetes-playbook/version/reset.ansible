@@ -1,6 +1,6 @@
 - name: reset kubernetes cluster
   hosts: all
-  user: root
+  user: caicloud
   tasks:
   - name: kubeadm reset
     shell: |

@@ -74,6 +74,7 @@
     registry: '{{ registry_endpoint }}'
     username: '{{ registry_user }}'
     password: '{{ registry_password }}'
+    tlsverify: false
   run_once: true
 
 - name: tag images
@@ -115,6 +116,7 @@
     tag: '{{ item.tag }}'
     push: true
     state: present
+    tlsverify: false
   with_items:
   - { name: 'kube-controller-manager', tag: '{{ kubernetes_version }}' }
   - { name: 'kube-apiserver', tag: '{{ kubernetes_version }}' }
@@ -259,7 +261,7 @@
 
 - name: generate other certificates
   shell: |
-    /var/lib/wise2c/tmp/kubernetes/generate-other-certificates.sh
+    /opt/wise2c/tmp/kubernetes/generate-other-certificates.sh
   run_once: true
 
 - name: fetch certificates
@@ -310,7 +312,7 @@
   
 - name: generate kube-apiserver certificate
   shell: |
-    /var/lib/wise2c/tmp/kubernetes/generate-apiserver-certificate.sh
+    /opt/wise2c/tmp/kubernetes/generate-apiserver-certificate.sh
 
 - name: copy kubeadm-token.sh and update-api-advertise-address.sh
   copy:
@@ -530,7 +532,7 @@
     kubectl -n kube-system apply -f {{ path }}/kube-proxy-cm-master.yaml
     kubectl -n kube-system apply -f {{ path }}/kube-proxy-cm-worker.yaml
     kubectl -n kube-system apply -f {{ path }}/kube-proxy-ds-master.json
-    kubectl -n kube-system patch ds kube-proxy --patch "$(cat /var/lib/wise2c/tmp/kubernetes/kube-proxy-ds-patch.yaml)"
+    kubectl -n kube-system patch ds kube-proxy --patch "$(cat /opt/wise2c/tmp/kubernetes/kube-proxy-ds-patch.yaml)"
   run_once: true
 
 - name: update HA setting for master nodes

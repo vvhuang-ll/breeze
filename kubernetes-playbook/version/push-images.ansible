@@ -27,6 +27,7 @@
     username: '{{ registry_user }}'
     password: '{{ registry_password }}'
     reauthorize: true
+    tlsverify: false
   run_once: true
 
 - name: tag images
@@ -50,6 +51,7 @@
     tag: '{{ item.tag }}'
     push: true
     state: present
+    tlsverify: false
   with_items:
   - { repo: '{{ kubernetes_repo }}', name: 'kube-controller-manager', tag: '{{ kubernetes_version }}' }
   - { repo: '{{ kubernetes_repo }}', name: 'kube-apiserver', tag: '{{ kubernetes_version }}' }

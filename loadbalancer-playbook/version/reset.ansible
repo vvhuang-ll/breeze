@@ -1,6 +1,6 @@
 - name: clean lb
   hosts: hosts
-  user: root
+  user: caicloud
   tasks:
   - name: stop & rm old lb
     shell: |
