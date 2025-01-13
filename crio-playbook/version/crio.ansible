@@ -221,6 +221,15 @@
   #    sed -i 's/,metacopy=on//g' /etc/containers/storage.conf
   #  when: (ansible_distribution == "Ubuntu") and (ansible_distribution_major_version == "22")
 
+  - name: Update containerd storage configuration
+    hosts: all
+    tasks:
+      - name: Replace graphroot in /etc/containers/storage.conf
+        replace:
+          path: /etc/containers/storage.conf
+          regexp: 'graphroot\s*=\s*"/var/lib/containers/storage"'
+          replace: 'graphroot = "/var/lib/containerd/storage"'
+
   - name: init crio on Redhat/CentOS to create folder /etc/crio
     systemd:
       name: crio
