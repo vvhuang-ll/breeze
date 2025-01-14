@@ -10,12 +10,12 @@ echo "keepalived_version: ${keepalived_version}" >> ${path}/inherent.yaml
 
 echo "build registry-idc.vestack.starbucks.net/k8s-keepalived:${keepalived_version} image"
 cd ${path}/keepalived
-docker build -t registry-idc.vestack.starbucks.net/k8s-keepalived:${keepalived_version} .
-docker save registry-idc.vestack.starbucks.net/k8s-keepalived:${keepalived_version} -o ../file/keepalived-${keepalived_version}.tar
+podman build -t registry-idc.vestack.starbucks.net/k8s-keepalived:${keepalived_version} .
+podman save registry-idc.vestack.starbucks.net/k8s-keepalived:${keepalived_version} -o ../file/keepalived-${keepalived_version}.tar
 bzip2 -z --best ../file/keepalived-${keepalived_version}.tar
 
 echo "build registry-idc.vestack.starbucks.net/k8s-haproxy:${haproxy_version} image"
-docker pull haproxy:${haproxy_version}
-docker tag haproxy:${haproxy_version} registry-idc.vestack.starbucks.net/k8s-haproxy:${haproxy_version}
-docker save registry-idc.vestack.starbucks.net/k8s-haproxy:${haproxy_version} -o ../file/haproxy-${haproxy_version}.tar
+podman pull haproxy:${haproxy_version}
+podman tag haproxy:${haproxy_version} registry-idc.vestack.starbucks.net/k8s-haproxy:${haproxy_version}
+podman save registry-idc.vestack.starbucks.net/k8s-haproxy:${haproxy_version} -o ../file/haproxy-${haproxy_version}.tar
 bzip2 -z --best ../file/haproxy-${haproxy_version}.tar
