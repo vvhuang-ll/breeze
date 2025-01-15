@@ -23,10 +23,10 @@ echo "docker.elastic.co/beats/filebeat:${ElasticStackVersion}" >> images-list.tx
 echo 'Images list for Elastic Cloud:'
 cat images-list.txt
 
-for file in $(cat images-list.txt); do docker pull $file; done
+for file in $(cat images-list.txt); do podman pull $file; done
 echo 'Images pulled.'
 
-docker save $(cat images-list.txt) -o ${path}/file/elastic-cloud-images.tar
+podman save $(cat images-list.txt) -o ${path}/file/elastic-cloud-images.tar
 echo 'Images saved.'
 bzip2 -z --best ${path}/file/elastic-cloud-images.tar
 echo 'Images are compressed as bzip format.'

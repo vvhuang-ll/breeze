@@ -43,10 +43,10 @@ mv 3.txt images-list.txt
 
 cat images-list.txt
 
-for file in $(cat images-list.txt); do docker pull $file; done
+for file in $(cat images-list.txt); do podman pull $file; done
 echo 'Images pulled.'
 
-docker save $(cat images-list.txt) -o kube-prometheus-images-v$KubePrometheusVersion.tar
+podman save $(cat images-list.txt) -o kube-prometheus-images-v$KubePrometheusVersion.tar
 echo 'Images saved.'
 bzip2 -z --best kube-prometheus-images-v$KubePrometheusVersion.tar
 echo 'Images are compressed as bzip format.'

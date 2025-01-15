@@ -28,10 +28,10 @@ cat istio-$IstioVersion/manifests/profiles/default.yaml |grep coredns-plugin |aw
 echo 'Images list for Istio:'
 cat images-list.txt
 
-for file in $(cat images-list.txt); do docker pull $file; done
+for file in $(cat images-list.txt); do podman pull $file; done
 echo 'Images pulled.'
 
-docker save $(cat images-list.txt) -o istio-images-$IstioVersion.tar
+podman save $(cat images-list.txt) -o istio-images-$IstioVersion.tar
 echo 'Images saved.'
 bzip2 -z --best istio-images-$IstioVersion.tar
 echo 'Images are compressed as bzip format.'

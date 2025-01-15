@@ -6,17 +6,17 @@ path=`dirname $0`
 
 k8s_version=`cat ${path}/components-version.txt |grep "Kubernetes" |awk '{print $3}'`
 
-docker run --rm --name=kubeadm-version wise2c/kubeadm-version:v${k8s_version} kubeadm config images list --kubernetes-version ${k8s_version} > ${path}/k8s-images-list.txt
+podman run --rm --name=kubeadm-version wise2c/kubeadm-version:v${k8s_version} kubeadm config images list --kubernetes-version ${k8s_version} > ${path}/k8s-images-list.txt
 
 echo "=== pulling kubernetes images ==="
 for IMAGES in $(cat ${path}/k8s-images-list.txt |grep -v etcd); do
-  docker pull ${IMAGES}
+  podman pull ${IMAGES}
 done
 echo "=== kubernetes images are pulled successfully ==="
 
 echo "=== saving kubernetes images ==="
 mkdir -p ${path}/file
-docker save $(cat ${path}/k8s-images-list.txt |grep -v etcd) -o ${path}/file/k8s.tar
+podman save $(cat ${path}/k8s-images-list.txt |grep -v etcd) -o ${path}/file/k8s.tar
 rm ${path}/file/k8s.tar.bz2 -f
 bzip2 -z --best ${path}/file/k8s.tar
 echo "=== kubernetes images are saved successfully ==="
@@ -46,16 +46,13 @@ echo "flannel_cni_plugin_version: ${flannel_cni_plugin_version}" >> ${path}/yat/
 curl -sSL https://raw.githubusercontent.com/coreos/flannel/${flannel_version}/Documentation/kube-flannel.yml \
    | sed -e "s,docker.io/flannel/,{{ registry_endpoint }}/{{ registry_project }}/,g" > ${path}/template/kube-flannel.yml.j2
 
-#curl -sSL https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml \
-#   | sed -e "s,docker.io/flannel/,{{ registry_endpoint }}/{{ registry_project }}/,g" > ${path}/template/kube-flannel.yml.j2
-
 echo "=== pulling flannel image ==="
-docker pull ${flannel_repo}/flannel:${flannel_version}
-docker pull ${flannel_repo}/flannel-cni-plugin:${flannel_cni_plugin_version}
+podman pull ${flannel_repo}/flannel:${flannel_version}
+podman pull ${flannel_repo}/flannel-cni-plugin:${flannel_cni_plugin_version}
 echo "=== flannel image is pulled successfully ==="
 
 echo "=== saving flannel image ==="
-docker save ${flannel_repo}/flannel:${flannel_version} \
+podman save ${flannel_repo}/flannel:${flannel_version} \
             ${flannel_repo}/flannel-cni-plugin:${flannel_cni_plugin_version} \
     > ${path}/file/flannel.tar
 rm ${path}/file/flannel.tar.bz2 -f
@@ -74,30 +71,30 @@ rm -f ${path}/file/calico-${calico_version}.tgz
 mv ${path}/file/release-${calico_version} ${path}/file/calico
 rm -rf ${path}/file/calico/bin
 rm -rf ${path}/file/calico/images/*
-docker pull calico/cni:${calico_version}${CPUArch}
-docker tag calico/cni:${calico_version}${CPUArch} calico/cni:${calico_version}
-docker save calico/cni:${calico_version} -o ${path}/file/calico/images/calico-cni.tar
-docker pull calico/ctl:${calico_version}${CPUArch}
-docker tag calico/ctl:${calico_version}${CPUArch} calico/ctl:${calico_version}
-docker save calico/ctl:${calico_version} -o ${path}/file/calico/images/calico-ctl.tar
-docker pull calico/node:${calico_version}${CPUArch}
-docker tag calico/node:${calico_version}${CPUArch} calico/node:${calico_version}
-docker save calico/node:${calico_version} -o ${path}/file/calico/images/calico-node.tar
-docker pull calico/typha:${calico_version}${CPUArch}
-docker tag calico/typha:${calico_version}${CPUArch} calico/typha:${calico_version}
-docker save calico/typha:${calico_version} -o ${path}/file/calico/images/calico-typha.tar
-docker pull calico/dikastes:${calico_version}${CPUArch}
-docker tag calico/dikastes:${calico_version}${CPUArch} calico/dikastes:${calico_version}
-docker save calico/dikastes:${calico_version} -o ${path}/file/calico/images/calico-dikastes.tar
-docker pull calico/kube-controllers:${calico_version}${CPUArch}
-docker tag calico/kube-controllers:${calico_version}${CPUArch} calico/kube-controllers:${calico_version}
-docker save calico/kube-controllers:${calico_version} -o ${path}/file/calico/images/calico-kube-controllers.tar
-docker pull calico/pod2daemon-flexvol:${calico_version}${CPUArch}
-docker tag calico/pod2daemon-flexvol:${calico_version}${CPUArch} calico/pod2daemon-flexvol:${calico_version}
-docker save calico/pod2daemon-flexvol:${calico_version} -o ${path}/file/calico/images/calico-pod2daemon-flexvol.tar
-docker pull calico/flannel-migration-controller:${calico_version}${CPUArch}
-docker tag calico/flannel-migration-controller:${calico_version}${CPUArch} calico/flannel-migration-controller:${calico_version}
-docker save calico/flannel-migration-controller:${calico_version} -o ${path}/file/calico/images/calico-flannel-migration-controller.tar
+podman pull calico/cni:${calico_version}${CPUArch}
+podman tag calico/cni:${calico_version}${CPUArch} calico/cni:${calico_version}
+podman save calico/cni:${calico_version} -o ${path}/file/calico/images/calico-cni.tar
+podman pull calico/ctl:${calico_version}${CPUArch}
+podman tag calico/ctl:${calico_version}${CPUArch} calico/ctl:${calico_version}
+podman save calico/ctl:${calico_version} -o ${path}/file/calico/images/calico-ctl.tar
+podman pull calico/node:${calico_version}${CPUArch}
+podman tag calico/node:${calico_version}${CPUArch} calico/node:${calico_version}
+podman save calico/node:${calico_version} -o ${path}/file/calico/images/calico-node.tar
+podman pull calico/typha:${calico_version}${CPUArch}
+podman tag calico/typha:${calico_version}${CPUArch} calico/typha:${calico_version}
+podman save calico/typha:${calico_version} -o ${path}/file/calico/images/calico-typha.tar
+podman pull calico/dikastes:${calico_version}${CPUArch}
+podman tag calico/dikastes:${calico_version}${CPUArch} calico/dikastes:${calico_version}
+podman save calico/dikastes:${calico_version} -o ${path}/file/calico/images/calico-dikastes.tar
+podman pull calico/kube-controllers:${calico_version}${CPUArch}
+podman tag calico/kube-controllers:${calico_version}${CPUArch} calico/kube-controllers:${calico_version}
+podman save calico/kube-controllers:${calico_version} -o ${path}/file/calico/images/calico-kube-controllers.tar
+podman pull calico/pod2daemon-flexvol:${calico_version}${CPUArch}
+podman tag calico/pod2daemon-flexvol:${calico_version}${CPUArch} calico/pod2daemon-flexvol:${calico_version}
+podman save calico/pod2daemon-flexvol:${calico_version} -o ${path}/file/calico/images/calico-pod2daemon-flexvol.tar
+podman pull calico/flannel-migration-controller:${calico_version}${CPUArch}
+podman tag calico/flannel-migration-controller:${calico_version}${CPUArch} calico/flannel-migration-controller:${calico_version}
+podman save calico/flannel-migration-controller:${calico_version} -o ${path}/file/calico/images/calico-flannel-migration-controller.tar
 echo "=== Compressing calico images ==="
 bzip2 -z --best ${path}/file/calico/images/calico-cni.tar
 bzip2 -z --best ${path}/file/calico/images/calico-ctl.tar
@@ -127,15 +124,15 @@ curl -sS https://raw.githubusercontent.com/kubernetes/dashboard/${dashboard_vers
     | sed -e "s,kubernetesui,{{ registry_endpoint }}/{{ registry_project }},g" > ${path}/template/kubernetes-dashboard.yml.j2
 
 echo "=== pulling kubernetes dashboard and metrics-server images ==="
-docker pull ${dashboard_repo}/dashboard:${dashboard_version}
-docker pull ${dashboard_repo}/metrics-scraper:${metrics_scraper_version}
-docker pull ${metrics_server_repo}/metrics-server/metrics-server:${metrics_server_version}
+podman pull ${dashboard_repo}/dashboard:${dashboard_version}
+podman pull ${dashboard_repo}/metrics-scraper:${metrics_scraper_version}
+podman pull ${metrics_server_repo}/metrics-server/metrics-server:${metrics_server_version}
 echo "=== kubernetes dashboard and metrics-server images are pulled successfully ==="
 
 echo "=== saving kubernetes dashboard images ==="
-docker save ${dashboard_repo}/dashboard:${dashboard_version} -o ${path}/file/dashboard.tar
-docker save ${dashboard_repo}/metrics-scraper:${metrics_scraper_version} -o ${path}/file/metrics-scraper.tar
-docker save ${metrics_server_repo}/metrics-server/metrics-server:${metrics_server_version} -o ${path}/file/metrics-server.tar
+podman save ${dashboard_repo}/dashboard:${dashboard_version} -o ${path}/file/dashboard.tar
+podman save ${dashboard_repo}/metrics-scraper:${metrics_scraper_version} -o ${path}/file/metrics-scraper.tar
+podman save ${metrics_server_repo}/metrics-server/metrics-server:${metrics_server_version} -o ${path}/file/metrics-server.tar
 rm -f ${path}/file/dashboard.tar.bz2
 rm -f ${path}/file/metrics-scraper.tar.bz2
 rm -f ${path}/file/metrics-server.tar.bz2
@@ -170,16 +167,16 @@ curl -sS https://projectcontour.io/examples/kuard.yaml \
     | sed -e "s,gcr.io/kuar-demo,{{ registry_endpoint }}/{{ registry_project }},g" > ${path}/template/contour-demo.yml.j2
 
 echo "=== pulling contour and envoyproxy images ==="
-docker pull ${contour_repo}/contour:${contour_version}
-docker pull ${contour_envoyproxy_repo}/envoy:${contour_envoyproxy_version}
-docker pull ${contour_demo_repo}/kuard-amd64:1
-docker pull ${contour_demo_repo}/kuard-arm64:1
+podman pull ${contour_repo}/contour:${contour_version}
+podman pull ${contour_envoyproxy_repo}/envoy:${contour_envoyproxy_version}
+podman pull ${contour_demo_repo}/kuard-amd64:1
+podman pull ${contour_demo_repo}/kuard-arm64:1
 echo "=== contour and envoyproxy images are pulled successfully ==="
 
 echo "=== saving contour and envoyproxy images ==="
-docker save ${contour_repo}/contour:${contour_version} -o ${path}/file/contour.tar
-docker save ${contour_envoyproxy_repo}/envoy:${contour_envoyproxy_version} -o ${path}/file/contour-envoyproxy.tar
-docker save ${contour_demo_repo}/kuard-amd64:1 ${contour_demo_repo}/kuard-arm64:1 -o ${path}/file/contour-demo.tar
+podman save ${contour_repo}/contour:${contour_version} -o ${path}/file/contour.tar
+podman save ${contour_envoyproxy_repo}/envoy:${contour_envoyproxy_version} -o ${path}/file/contour-envoyproxy.tar
+podman save ${contour_demo_repo}/kuard-amd64:1 ${contour_demo_repo}/kuard-arm64:1 -o ${path}/file/contour-demo.tar
 rm -f ${path}/file/contour.tar.bz2
 rm -f ${path}/file/contour-envoyproxy.tar.bz2
 rm -f ${path}/file/contour-demo.tar.bz2
