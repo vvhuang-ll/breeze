@@ -1,104 +1,89 @@
+version: 2.1
+
 jobs:
   build-branches-amd64:
     machine: true
     steps:
       - checkout
       - run:
-          name: Build an amd64 container image
+          name: Install Podman
+          command: |
+            echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/podman.list
+            curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key | sudo apt-key add -
+            sudo apt-get update && sudo apt-get install -y podman
+      - run:
+          name: Configure Podman
+          command: |
+            sudo mkdir -p /etc/containers/registries.conf.d/
+            cat << EOF | sudo tee /etc/containers/registries.conf.d/docker.conf
+            unqualified-search-registries = ["docker.io"]
+            EOF
+
+            cat << EOF | sudo tee /etc/containers/containers.conf
+            [engine]
+            cgroup_manager = "cgroupfs"
+            storage_driver = "vfs"
+            events_logger = "file"
+            EOF
+
+            cat << EOF | sudo tee /etc/containers/storage.conf
+            [storage]
+            driver = "vfs"
+            EOF
+      - run:
+          name: Build AMD64 Container Image
           command: |
             cp loadbalancer-playbook/version/keepalived/Dockerfile.amd64 loadbalancer-playbook/version/keepalived/Dockerfile
             bash init.sh
-            docker rmi -f $(docker images |awk '{print $1":"$2}' |grep -v REPOSITORY)
-            docker system prune --all --force
-            docker images
-            docker build -t huangqw/playbook:amd64-$CIRCLE_BRANCH .
-            docker login -u huangqw -p Hqw@ll1107
-            docker push huangqw/playbook:amd64-$CIRCLE_BRANCH
+            sudo podman system prune --all --force
+            sudo podman build -t huangqw/playbook:amd64-$CIRCLE_BRANCH .
+            echo $DOCKER_PASSWORD | sudo podman login -u $DOCKER_USERNAME --password-stdin docker.io
+            sudo podman push huangqw/playbook:amd64-$CIRCLE_BRANCH
 
   build-tags-amd64:
     machine: true
     steps:
       - checkout
       - run:
-          name: Build an amd64 container image
+          name: Install Podman
+          command: |
+            echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/podman.list
+            curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key | sudo apt-key add -
+            sudo apt-get update && sudo apt-get install -y podman
+      - run:
+          name: Configure Podman
+          command: |
+            sudo mkdir -p /etc/containers/registries.conf.d/
+            cat << EOF | sudo tee /etc/containers/registries.conf.d/docker.conf
+            unqualified-search-registries = ["docker.io"]
+            EOF
+
+            cat << EOF | sudo tee /etc/containers/containers.conf
+            [engine]
+            cgroup_manager = "cgroupfs"
+            storage_driver = "vfs"
+            events_logger = "file"
+            EOF
+
+            cat << EOF | sudo tee /etc/containers/storage.conf
+            [storage]
+            driver = "vfs"
+            EOF
+      - run:
+          name: Build AMD64 Container Image
           command: |
             cp loadbalancer-playbook/version/keepalived/Dockerfile.amd64 loadbalancer-playbook/version/keepalived/Dockerfile
             bash init.sh
-            docker rmi -f $(docker images |awk '{print $1":"$2}' |grep -v REPOSITORY)
-            docker system prune --all --force
-            docker images
-            docker build -t huangqw/playbook:amd64-$CIRCLE_TAG .
-            docker login -u huangqw -p Hqw@ll1107
-            docker push huangqw/playbook:amd64-$CIRCLE_TAG
-
-  build-branches-aarch64:
-    machine: true
-    resource_class: arm.medium
-    steps:
-      - checkout
-      - run:
-          name: Build an aarch64 container image
-          command: |
-            cp loadbalancer-playbook/version/keepalived/Dockerfile.aarch64 loadbalancer-playbook/version/keepalived/Dockerfile
-            bash init.sh
-            docker rmi -f $(docker images |awk '{print $1":"$2}' |grep -v REPOSITORY)
-            docker system prune --all --force
-            docker images
-            docker build -t huangqw/playbook:aarch64-$CIRCLE_BRANCH .
-            docker login -u huangqw -p Hqw@ll1107
-            docker push huangqw/playbook:aarch64-$CIRCLE_BRANCH
-
-  build-tags-aarch64:
-    resource_class: arm.medium
-    machine: true
-    steps:
-      - checkout
-      - run:
-          name: Build an aarch64 container image
-          command: |
-            cp loadbalancer-playbook/version/keepalived/Dockerfile.aarch64 loadbalancer-playbook/version/keepalived/Dockerfile
-            bash init.sh
-            docker rmi -f $(docker images |awk '{print $1":"$2}' |grep -v REPOSITORY)
-            docker system prune --all --force
-            docker images
-            docker build -t huangqw/playbook:aarch64-$CIRCLE_TAG .
-            docker login -u huangqw -p Hqw@ll1107
-            docker push huangqw/playbook:aarch64-$CIRCLE_TAG
-
-  build-branches-multi-arch:
-    machine: true
-    steps:
-      - run:
-          name: Build a multi-arch container image
-          command: |
-            docker manifest create huangqw/playbook:$CIRCLE_BRANCH huangqw/playbook:amd64-$CIRCLE_BRANCH huangqw/playbook:aarch64-$CIRCLE_BRANCH
-            docker manifest annotate huangqw/playbook:$CIRCLE_BRANCH huangqw/playbook:amd64-$CIRCLE_BRANCH --os linux --arch amd64
-            docker manifest annotate huangqw/playbook:$CIRCLE_BRANCH huangqw/playbook:aarch64-$CIRCLE_BRANCH --os linux --arch arm64
-            docker login -u huangqw -p Hqw@ll1107
-            docker manifest push huangqw/playbook:$CIRCLE_BRANCH
-
-  build-tags-multi-arch:
-    machine: true
-    steps:
-      - run:
-          name: Build a multi-arch container image
-          command: |
-            docker manifest create huangqw/playbook:$CIRCLE_TAG huangqw/playbook:amd64-$CIRCLE_TAG huangqw/playbook:aarch64-$CIRCLE_TAG
-            docker manifest annotate huangqw/playbook:$CIRCLE_TAG huangqw/playbook:amd64-$CIRCLE_TAG --os linux --arch amd64
-            docker manifest annotate huangqw/playbook:$CIRCLE_TAG huangqw/playbook:aarch64-$CIRCLE_TAG --os linux --arch arm64
-            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-            docker manifest push huangqw/playbook:$CIRCLE_TAG
+            sudo podman system prune --all --force
+            sudo podman build -t huangqw/playbook:amd64-$CIRCLE_TAG .
+            echo $DOCKER_PASSWORD | sudo podman login -u $DOCKER_USERNAME --password-stdin docker.io
+            sudo podman push huangqw/playbook:amd64-$CIRCLE_TAG
 
 workflows:
   version: 2
   build-for-branches:
     jobs:
       - build-branches-amd64
-      - build-branches-aarch64
-      - build-branches-multi-arch:
-          requires:
-            - build-branches-amd64
-            - build-branches-aarch64
   build-for-tags:
     jobs:
       - build-tags-amd64:
@@ -107,19 +92,6 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-      - build-tags-aarch64:
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
-      - build-tags-multi-arch:
-          requires:
-            - build-tags-amd64
-            - build-tags-aarch64
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
+
+
 
