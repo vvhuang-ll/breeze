@@ -25,21 +25,21 @@ jobs:
       - run:
           name: Configure Podman
           command: |
-            sudo mkdir -p /etc/containers
-            cat << EOF | sudo tee /etc/containers/registries.conf
-            [registries.search]
-            registries = ['docker.io']
+            sudo mkdir -p /etc/containers/registries.conf.d
+            cat \<< EOF | sudo tee /etc/containers/registries.conf.d/docker.conf
+              unqualified-search-registries = ["docker.io"]
             EOF
-            
-            cat << EOF | sudo tee /etc/containers/storage.conf
-            [storage]
-            driver = "vfs"
-            
-            [storage.options]
-            mount_program = "/usr/bin/fuse-overlayfs"
-            
-            [storage.options.vfs]
-            ignore_chown_errors = "true"
+
+            cat \<< EOF | sudo tee /etc/containers/containers.conf
+              [engine]
+              cgroup_manager = "cgroupfs"
+              storage_driver = "vfs"
+              events_logger = "file"
+            EOF
+
+            cat \<< EOF | sudo tee /etc/containers/storage.conf
+              [storage]
+              driver = "vfs"
             EOF
       - run:
           name: Build AMD64 Container Image
@@ -75,21 +75,21 @@ jobs:
       - run:
           name: Configure Podman
           command: |
-            sudo mkdir -p /etc/containers
-            cat << EOF | sudo tee /etc/containers/registries.conf
-            [registries.search]
-            registries = ['docker.io']
+            sudo mkdir -p /etc/containers/registries.conf.d
+            cat \<< EOF | sudo tee /etc/containers/registries.conf.d/docker.conf
+              unqualified-search-registries = ["docker.io"]
             EOF
-            
-            cat << EOF | sudo tee /etc/containers/storage.conf
-            [storage]
-            driver = "vfs"
-            
-            [storage.options]
-            mount_program = "/usr/bin/fuse-overlayfs"
-            
-            [storage.options.vfs]
-            ignore_chown_errors = "true"
+
+            cat \<< EOF | sudo tee /etc/containers/containers.conf
+              [engine]
+              cgroup_manager = "cgroupfs"
+              storage_driver = "vfs"
+              events_logger = "file"
+            EOF
+
+            cat \<< EOF | sudo tee /etc/containers/storage.conf
+              [storage]
+              driver = "vfs"
             EOF
       - run:
           name: Build AMD64 Container Image
