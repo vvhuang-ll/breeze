@@ -26,6 +26,8 @@ jobs:
           name: Configure Podman
           command: |
             sudo mkdir -p /etc/containers/registries.conf.d
+            sudo mkdir -p /var/lib/containers/storage
+            
             cat \<< EOF | sudo tee /etc/containers/registries.conf.d/docker.conf
             unqualified-search-registries = ["docker.io"]
             EOF
@@ -39,6 +41,8 @@ jobs:
             cat \<< EOF | sudo tee /etc/containers/storage.conf
             [storage]
             driver = "vfs"
+            graphroot = "/var/lib/containers/storage"
+            runroot = "/run/containers/storage"
             EOF
       - run:
           name: Build AMD64 Container Image
@@ -75,6 +79,8 @@ jobs:
           name: Configure Podman
           command: |
             sudo mkdir -p /etc/containers/registries.conf.d
+            sudo mkdir -p /var/lib/containers/storage
+            
             cat \<< EOF | sudo tee /etc/containers/registries.conf.d/docker.conf
             unqualified-search-registries = ["docker.io"]
             EOF
@@ -88,6 +94,8 @@ jobs:
             cat \<< EOF | sudo tee /etc/containers/storage.conf
             [storage]
             driver = "vfs"
+            graphroot = "/var/lib/containers/storage"
+            runroot = "/run/containers/storage"
             EOF
       - run:
           name: Build AMD64 Container Image
