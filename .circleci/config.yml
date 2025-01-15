@@ -2,19 +2,28 @@ version: 2.1
 
 jobs:
   build-branches-amd64:
-    docker:
-      - image: cimg/base:stable
+    machine:
+      image: ubuntu-2004:2024.01.1
     steps:
       - checkout
-      - setup_remote_docker
       - run:
           name: Install Podman
           command: |
-            . /etc/os-release
-            echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-            curl -L "http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key" | sudo apt-key add -
-            sudo apt-get update -qq
-            sudo apt-get -qq -y install podman
+            echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/podman.list
+            curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key | sudo apt-key add -
+            sudo apt-get update
+            sudo apt-get install -y podman fuse-overlayfs slirp4netns
+      - run:
+          name: Configure Podman
+          command: |
+            sudo mkdir -p /etc/containers
+            echo "unqualified-search-registries = ['docker.io']" | sudo tee /etc/containers/registries.conf
+            echo '[storage]
+            driver = "overlay"
+            runroot = "/run/containers/storage"
+            graphroot = "/var/lib/containers/storage"
+            [storage.options]
+            mount_program = "/usr/bin/fuse-overlayfs"' | sudo tee /etc/containers/storage.conf
       - run:
           name: Build AMD64 Container Image
           command: |
@@ -26,19 +35,28 @@ jobs:
             sudo podman push huangqw/playbook:amd64-$CIRCLE_BRANCH
 
   build-tags-amd64:
-    docker:
-      - image: cimg/base:stable
+    machine:
+      image: ubuntu-2004:2024.01.1
     steps:
       - checkout
-      - setup_remote_docker
       - run:
           name: Install Podman
           command: |
-            . /etc/os-release
-            echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-            curl -L "http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key" | sudo apt-key add -
-            sudo apt-get update -qq
-            sudo apt-get -qq -y install podman
+            echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/podman.list
+            curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key | sudo apt-key add -
+            sudo apt-get update
+            sudo apt-get install -y podman fuse-overlayfs slirp4netns
+      - run:
+          name: Configure Podman
+          command: |
+            sudo mkdir -p /etc/containers
+            echo "unqualified-search-registries = ['docker.io']" | sudo tee /etc/containers/registries.conf
+            echo '[storage]
+            driver = "overlay"
+            runroot = "/run/containers/storage"
+            graphroot = "/var/lib/containers/storage"
+            [storage.options]
+            mount_program = "/usr/bin/fuse-overlayfs"' | sudo tee /etc/containers/storage.conf
       - run:
           name: Build AMD64 Container Image
           command: |
