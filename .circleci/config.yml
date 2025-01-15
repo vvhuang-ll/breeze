@@ -27,19 +27,18 @@ jobs:
           command: |
             sudo mkdir -p /etc/containers/registries.conf.d
             cat \<< EOF | sudo tee /etc/containers/registries.conf.d/docker.conf
-              unqualified-search-registries = ["docker.io"]
+            unqualified-search-registries = ["docker.io"]
             EOF
 
             cat \<< EOF | sudo tee /etc/containers/containers.conf
-              [engine]
-              cgroup_manager = "cgroupfs"
-              storage_driver = "vfs"
-              events_logger = "file"
+            [engine]
+            cgroup_manager = "cgroupfs"
+            events_logger = "file"
             EOF
 
             cat \<< EOF | sudo tee /etc/containers/storage.conf
-              [storage]
-              driver = "vfs"
+            [storage]
+            driver = "vfs"
             EOF
       - run:
           name: Build AMD64 Container Image
@@ -77,19 +76,18 @@ jobs:
           command: |
             sudo mkdir -p /etc/containers/registries.conf.d
             cat \<< EOF | sudo tee /etc/containers/registries.conf.d/docker.conf
-              unqualified-search-registries = ["docker.io"]
+            unqualified-search-registries = ["docker.io"]
             EOF
 
             cat \<< EOF | sudo tee /etc/containers/containers.conf
-              [engine]
-              cgroup_manager = "cgroupfs"
-              storage_driver = "vfs"
-              events_logger = "file"
+            [engine]
+            cgroup_manager = "cgroupfs"
+            events_logger = "file"
             EOF
 
             cat \<< EOF | sudo tee /etc/containers/storage.conf
-              [storage]
-              driver = "vfs"
+            [storage]
+            driver = "vfs"
             EOF
       - run:
           name: Build AMD64 Container Image
