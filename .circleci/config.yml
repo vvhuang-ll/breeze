@@ -7,13 +7,21 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Podman Dependencies
+          name: Install Podman
           command: |
+            # 安装基础依赖
             sudo apt-get update
-            sudo apt-get -y install software-properties-common uidmap
-            sudo add-apt-repository -y universe
-            sudo apt-get update
-            sudo apt-get -y install podman fuse-overlayfs slirp4netns
+            sudo apt-get -y install curl wget gnupg2
+
+            # 添加 Kubic 项目的仓库密钥
+            curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_20.04/Release.key | sudo gpg --dearmor -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
+
+            # 添加 Kubic 项目的仓库
+            echo "deb [arch=amd64 signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_20.04/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list > /dev/null
+
+            # 更新包列表并安装 Podman
+            sudo apt-get update -qq
+            sudo apt-get -qq -y install podman
       - run:
           name: Configure Podman
           command: |
@@ -52,13 +60,21 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Podman Dependencies
+          name: Install Podman
           command: |
+            # 安装基础依赖
             sudo apt-get update
-            sudo apt-get -y install software-properties-common uidmap
-            sudo add-apt-repository -y universe
-            sudo apt-get update
-            sudo apt-get -y install podman fuse-overlayfs slirp4netns
+            sudo apt-get -y install curl wget gnupg2
+
+            # 添加 Kubic 项目的仓库密钥
+            curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_20.04/Release.key | sudo gpg --dearmor -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
+
+            # 添加 Kubic 项目的仓库
+            echo "deb [arch=amd64 signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_20.04/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list > /dev/null
+
+            # 更新包列表并安装 Podman
+            sudo apt-get update -qq
+            sudo apt-get -qq -y install podman
       - run:
           name: Configure Podman
           command: |
