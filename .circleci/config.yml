@@ -2,14 +2,16 @@ version: 2.1
 
 jobs:
   build-branches-amd64:
-    machine: true
+    docker:
+      - image: cimg/base:stable
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Install Podman
           command: |
-            echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/podman.list
-            curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key | sudo apt-key add -
+            echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/ /' | sudo tee /etc/apt/sources.list.d/podman.list
+            curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/Release.key | sudo apt-key add -
             sudo apt-get update && sudo apt-get install -y podman
       - run:
           name: Build AMD64 Container Image
@@ -22,16 +24,17 @@ jobs:
             sudo podman push huangqw/playbook:amd64-$CIRCLE_BRANCH
 
   build-tags-amd64:
-    machine: true
+    docker:
+      - image: cimg/base:stable
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Install Podman
           command: |
-            echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/podman.list
-            curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key | sudo apt-key add -
+            echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/ /' | sudo tee /etc/apt/sources.list.d/podman.list
+            curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/Release.key | sudo apt-key add -
             sudo apt-get update && sudo apt-get install -y podman
- 
       - run:
           name: Build AMD64 Container Image
           command: |
