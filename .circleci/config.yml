@@ -12,25 +12,6 @@ jobs:
             curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key | sudo apt-key add -
             sudo apt-get update && sudo apt-get install -y podman
       - run:
-          name: Configure Podman
-          command: |
-            sudo mkdir -p /etc/containers/registries.conf.d/
-            cat << EOF | sudo tee /etc/containers/registries.conf.d/docker.conf
-            unqualified-search-registries = ["docker.io"]
-            EOF
-
-            cat << EOF | sudo tee /etc/containers/containers.conf
-            [engine]
-            cgroup_manager = "cgroupfs"
-            storage_driver = "vfs"
-            events_logger = "file"
-            EOF
-
-            cat << EOF | sudo tee /etc/containers/storage.conf
-            [storage]
-            driver = "vfs"
-            EOF
-      - run:
           name: Build AMD64 Container Image
           command: |
             cp loadbalancer-playbook/version/keepalived/Dockerfile.amd64 loadbalancer-playbook/version/keepalived/Dockerfile
@@ -50,25 +31,7 @@ jobs:
             echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/podman.list
             curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key | sudo apt-key add -
             sudo apt-get update && sudo apt-get install -y podman
-      - run:
-          name: Configure Podman
-          command: |
-            sudo mkdir -p /etc/containers/registries.conf.d/
-            cat << EOF | sudo tee /etc/containers/registries.conf.d/docker.conf
-            unqualified-search-registries = ["docker.io"]
-            EOF
-
-            cat << EOF | sudo tee /etc/containers/containers.conf
-            [engine]
-            cgroup_manager = "cgroupfs"
-            storage_driver = "vfs"
-            events_logger = "file"
-            EOF
-
-            cat << EOF | sudo tee /etc/containers/storage.conf
-            [storage]
-            driver = "vfs"
-            EOF
+ 
       - run:
           name: Build AMD64 Container Image
           command: |
