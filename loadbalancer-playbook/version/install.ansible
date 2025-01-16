@@ -86,6 +86,11 @@
       - { repo: 'registry-idc.vestack.starbucks.net', name: 'k8s-keepalived', tag: '{{ keepalived_version }}' }
     run_once: true
 
+  - name: clean up podman temporary files
+    shell: |
+      rm -f /var/tmp/docker-tar*
+    run_once: true
+
   - name: get port
     set_fact:
       ports: |

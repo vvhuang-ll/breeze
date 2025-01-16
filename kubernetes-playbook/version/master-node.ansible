@@ -68,7 +68,7 @@
   async: 600
   poll: 5
   run_once: true
-
+ 
 - name: podman login
   containers.podman.podman_login:
     registry: '{{ registry_endpoint }}'
@@ -168,6 +168,11 @@
   - { repo: '{{ contour_repo }}', name: 'contour', tag: '{{ contour_version }}' }
   - { repo: '{{ contour_envoyproxy_repo }}', name: 'envoy', tag: '{{ contour_envoyproxy_version }}' }
   - { repo: '{{ contour_demo_repo }}', name: 'kuard-amd64', tag: '1' }
+  run_once: true
+
+- name: clean up podman temporary files
+  shell: |
+    rm -f /var/tmp/docker-tar*
   run_once: true
 
 - name: install git command for helm-push and perl library for ipcalc
@@ -354,6 +359,12 @@
   shell: |
     kubeadm init --config {{ path }}/kubeadm.conf
   throttle: 1
+  register: kubeadm_result
+
+- name: check kubeadm init result
+  fail:
+    msg: "节点 {{ inventory_hostname }} 上的 kubeadm init 执行失败"
+  when: kubeadm_result.failed
 
 - name: copy kube-proxy-ds-patch.yaml
   copy:

@@ -100,7 +100,7 @@
 
 - name: upgrade kubernetes worker nodes
   hosts: node
-  user: root
+  user: caicloud
   vars:
     path: /opt/wise2c/tmp/kubernetes
 

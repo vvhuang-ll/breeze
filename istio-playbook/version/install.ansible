@@ -97,3 +97,8 @@
     args:
       chdir: '{{ cpath }}/'
     run_once: true
+
+  - name: clean up podman temporary files
+    shell: |
+      rm -f /var/tmp/docker-tar*
+    run_once: true

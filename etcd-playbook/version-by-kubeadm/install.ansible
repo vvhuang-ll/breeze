@@ -92,6 +92,11 @@
       - { repo: 'registry.k8s.io', name: 'etcd', tag: '{{ version }}' }
     run_once: true
 
+  - name: clean up podman temporary files
+    shell: |
+      rm -f /var/tmp/docker-tar*
+    run_once: true
+
   - name: make etcd cert dir
     file:
       path: '/etc/etcd/pki'

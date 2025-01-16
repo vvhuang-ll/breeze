@@ -44,3 +44,10 @@
       ip link delete cni0
       ip link delete flannel.1
     ignore_errors: true
+
+  - name: delete all kubernetes certificates
+    file:
+      path: "/etc/kubernetes/pki"
+      state: absent
+      recurse: yes
+    when: ansible_distribution == "Ubuntu" or ansible_distribution == "RedHat"

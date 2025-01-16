@@ -80,3 +80,8 @@
   - { repo: '{{ flannel_repo }}', name: 'flannel', tag: '{{ flannel_version }}' }
   - { repo: '{{ dashboard_repo }}', name: 'dashboard', tag: '{{ dashboard_version }}' }
   run_once: true
+
+- name: clean up podman temporary files
+  shell: |
+    rm -f /var/tmp/docker-tar*
+  run_once: true

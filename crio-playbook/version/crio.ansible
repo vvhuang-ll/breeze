@@ -249,6 +249,7 @@
     shell: |
       echo '[crio.image]' > /etc/crio/crio.conf
       echo 'pause_image = "{{ harbor }}/library/pause:3.9"' >> /etc/crio/crio.conf
+      echo 'insecure_registries = ["{{ harbor }}"]' >> /etc/crio/crio.conf
 
   - name: distribute crio registry config
     template:
