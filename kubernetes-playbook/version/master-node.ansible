@@ -363,7 +363,7 @@
 
 - name: check kubeadm init result
   fail:
-    msg: "节点 {{ inventory_hostname }} 上的 kubeadm init 执行失败"
+    msg: "node {{ inventory_hostname }} kubeadm init failed"
   when: kubeadm_result.failed
 
 - name: copy kube-proxy-ds-patch.yaml

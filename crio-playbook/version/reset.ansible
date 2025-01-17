@@ -2,6 +2,11 @@
   hosts: hosts
   user: caicloud
   tasks:
+  - name: remove all container images
+    shell: |
+      podman rmi -f $(podman images -q) || true
+      podman system prune --all --force
+
   - name: remove crio for Redhat/CentOS
     yum:
       disablerepo: '*'

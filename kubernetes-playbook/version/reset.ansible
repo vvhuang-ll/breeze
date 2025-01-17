@@ -51,3 +51,11 @@
       state: absent
       recurse: yes
     when: ansible_distribution == "Ubuntu" or ansible_distribution == "RedHat"
+
+
+  - name: delete all wise2c
+    file:
+      path: "/opt/wise2c"
+      state: absent
+      recurse: yes
+    when: ansible_distribution == "Ubuntu" or ansible_distribution == "RedHat"
