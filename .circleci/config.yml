@@ -3,9 +3,47 @@ version: 2.1
 jobs:
   build-branches-amd64:
     machine:
-      image: huangqw/ubuntu:20.04-podman
+      image: ubuntu-2004:2024.01.1
     steps:
       - checkout
+      - run:
+          name: Install Podman
+          command: |
+            # 安装基础依赖
+            sudo apt-get update
+            sudo apt-get -y install curl wget gnupg2
+
+            # 添加 Kubic 项目的仓库密钥
+            curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_20.04/Release.key | sudo gpg --dearmor -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
+
+            # 添加 Kubic 项目的仓库
+            echo "deb [arch=amd64 signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_20.04/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list > /dev/null
+
+            # 更新包列表并安装 Podman
+            sudo apt-get update -qq
+            sudo apt-get -qq -y install podman
+      - run:
+          name: Configure Podman
+          command: |
+            sudo mkdir -p /etc/containers/registries.conf.d
+            sudo mkdir -p /var/lib/containers/storage
+            
+            cat \<< EOF | sudo tee /etc/containers/registries.conf.d/docker.conf
+            unqualified-search-registries = ["docker.io"]
+            EOF
+
+            cat \<< EOF | sudo tee /etc/containers/containers.conf
+            [engine]
+            cgroup_manager = "cgroupfs"
+            events_logger = "file"
+            EOF
+
+            cat \<< EOF | sudo tee /etc/containers/storage.conf
+            [storage]
+            driver = "vfs"
+            graphroot = "/var/lib/containers/storage"
+            runroot = "/run/containers/storage"
+            EOF
       - run:
           name: Build AMD64 Container Image
           command: |
