@@ -71,17 +71,6 @@
         src: file/cfssl-tools.tar.gz
         dest: /usr/local/bin
 
-    - name: copy prometheus k8s nodes fix scripts
-      copy:
-        src: '{{ item.src }}'
-        dest: '{{ item.dest }}'
-        mode: 0755
-      with_items:
-      - { src: 'file/prometheus-fix-master-nodes.sh', dest: '/opt/wise2c/tmp/kubernetes/' }
-      - { src: 'file/prometheus-fix-master-nodes-ubuntu.sh', dest: '/opt/wise2c/tmp/kubernetes/' }
-      - { src: 'file/prometheus-fix-worker-nodes.sh', dest: '/opt/wise2c/tmp/kubernetes/' }
-      - { src: 'file/prometheus-fix-worker-nodes-ubuntu.sh', dest: '/opt/wise2c/tmp/kubernetes/' }
-
     - name: distribute kubelet config for Redhat/CentOS
       template:
         src: '{{ item.src }}'

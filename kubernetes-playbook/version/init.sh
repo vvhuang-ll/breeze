@@ -16,9 +16,13 @@ echo "=== kubernetes images are pulled successfully ==="
 
 echo "=== saving kubernetes images ==="
 mkdir -p ${path}/file
-podman save $(cat ${path}/k8s-images-list.txt |grep -v etcd) -o ${path}/file/k8s.tar
-rm ${path}/file/k8s.tar.bz2 -f
-bzip2 -z --best ${path}/file/k8s.tar
+rm -f ${path}/file/k8s-*.tar.bz2
+
+for IMAGES in $(cat ${path}/k8s-images-list.txt |grep -v etcd); do
+  image_name=$(echo ${IMAGES} | sed 's/[\/:]/-/g')
+  podman save ${IMAGES} -o ${path}/file/k8s-${image_name}.tar
+  bzip2 -z --best ${path}/file/k8s-${image_name}.tar
+done
 echo "=== kubernetes images are saved successfully ==="
 
 kubernetes_repo=`cat ${path}/k8s-images-list.txt |grep kube-apiserver |awk -F '/' '{print $1}'`
@@ -106,13 +110,7 @@ bzip2 -z --best ${path}/file/calico/images/calico-pod2daemon-flexvol.tar
 bzip2 -z --best ${path}/file/calico/images/calico-flannel-migration-controller.tar
 echo "=== Calico images are compressed as bzip format successfully ==="
 
-dashboard_repo=kubernetesui
-dashboard_version=v`cat ${path}/components-version.txt |grep "Dashboard" |awk '{print $3}'`
-metrics_scraper_version=v`cat ${path}/components-version.txt |grep "MetricsScraper" |awk '{print $3}'`
 
-echo "dashboard_repo: ${dashboard_repo}" >> ${path}/yat/all.yml.gotmpl
-echo "dashboard_version: ${dashboard_version}" >> ${path}/yat/all.yml.gotmpl
-echo "metrics_scraper_version: ${metrics_scraper_version}" >> ${path}/yat/all.yml.gotmpl
 
 metrics_server_repo=${kubernetes_repo}
 metrics_server_version=v`cat ${path}/components-version.txt |grep "MetricsServer" |awk '{print $3}'`
@@ -120,71 +118,20 @@ metrics_server_version=v`cat ${path}/components-version.txt |grep "MetricsServer
 echo "metrics_server_repo: ${metrics_server_repo}" >> ${path}/yat/all.yml.gotmpl
 echo "metrics_server_version: ${metrics_server_version}" >> ${path}/yat/all.yml.gotmpl
 
-curl -sS https://raw.githubusercontent.com/kubernetes/dashboard/${dashboard_version}/aio/deploy/recommended.yaml \
-    | sed -e "s,kubernetesui,{{ registry_endpoint }}/{{ registry_project }},g" > ${path}/template/kubernetes-dashboard.yml.j2
 
-echo "=== pulling kubernetes dashboard and metrics-server images ==="
-podman pull ${dashboard_repo}/dashboard:${dashboard_version}
-podman pull ${dashboard_repo}/metrics-scraper:${metrics_scraper_version}
+
+echo "=== pulling  metrics-server images ==="
 podman pull ${metrics_server_repo}/metrics-server/metrics-server:${metrics_server_version}
-echo "=== kubernetes dashboard and metrics-server images are pulled successfully ==="
+echo "=== kubernetes metrics-server images are pulled successfully ==="
 
 echo "=== saving kubernetes dashboard images ==="
-podman save ${dashboard_repo}/dashboard:${dashboard_version} -o ${path}/file/dashboard.tar
-podman save ${dashboard_repo}/metrics-scraper:${metrics_scraper_version} -o ${path}/file/metrics-scraper.tar
 podman save ${metrics_server_repo}/metrics-server/metrics-server:${metrics_server_version} -o ${path}/file/metrics-server.tar
 rm -f ${path}/file/dashboard.tar.bz2
 rm -f ${path}/file/metrics-scraper.tar.bz2
 rm -f ${path}/file/metrics-server.tar.bz2
-bzip2 -z --best ${path}/file/dashboard.tar
-bzip2 -z --best ${path}/file/metrics-scraper.tar
 bzip2 -z --best ${path}/file/metrics-server.tar
 
 echo "=== kubernetes dashboard and metrics-server images are saved successfully ==="
-
-contour_repo="ghcr.io/projectcontour"
-contour_long_repo="ghcr.io/projectcontour"
-contour_envoyproxy_repo="envoyproxy"
-contour_envoyproxy_long_repo="docker.io/envoyproxy"
-contour_demo_repo="gcr.io/kuar-demo"
-contour_version=v`cat ${path}/components-version.txt |grep "Contour Version" |awk '{print $3}'`
-contour_envoyproxy_version=v`cat ${path}/components-version.txt |grep "ContourEnvoyProxy Version" |awk '{print $3}'`
-
-echo "contour_repo: ${contour_repo}" >> ${path}/yat/all.yml.gotmpl
-echo "contour_long_repo: ${contour_long_repo}" >> ${path}/yat/all.yml.gotmpl
-echo "contour_envoyproxy_repo: ${contour_envoyproxy_repo}" >> ${path}/yat/all.yml.gotmpl
-echo "contour_envoyproxy_long_repo: ${contour_envoyproxy_long_repo}" >> ${path}/yat/all.yml.gotmpl
-echo "contour_demo_repo: ${contour_demo_repo}" >> ${path}/yat/all.yml.gotmpl
-echo "contour_version: ${contour_version}" >> ${path}/yat/all.yml.gotmpl
-echo "contour_envoyproxy_version: ${contour_envoyproxy_version}" >> ${path}/yat/all.yml.gotmpl
-
-curl -sS https://raw.githubusercontent.com/projectcontour/contour/${contour_version}/examples/render/contour.yaml \
-    | sed -e "s#image: ghcr.io/projectcontour/contour:latest#image: ghcr.io/projectcontour/contour:${contour_version}#g" > ${path}/template/contour.yml.j2
-sed -i "s,ghcr.io/projectcontour,{{ registry_endpoint }}/{{ registry_project }},g" ${path}/template/contour.yml.j2
-sed -i "s,docker.io/envoyproxy,{{ registry_endpoint }}/{{ registry_project }},g" ${path}/template/contour.yml.j2
-
-curl -sS https://projectcontour.io/examples/kuard.yaml \
-    | sed -e "s,gcr.io/kuar-demo,{{ registry_endpoint }}/{{ registry_project }},g" > ${path}/template/contour-demo.yml.j2
-
-echo "=== pulling contour and envoyproxy images ==="
-podman pull ${contour_repo}/contour:${contour_version}
-podman pull ${contour_envoyproxy_repo}/envoy:${contour_envoyproxy_version}
-podman pull ${contour_demo_repo}/kuard-amd64:1
-podman pull ${contour_demo_repo}/kuard-arm64:1
-echo "=== contour and envoyproxy images are pulled successfully ==="
-
-echo "=== saving contour and envoyproxy images ==="
-podman save ${contour_repo}/contour:${contour_version} -o ${path}/file/contour.tar
-podman save ${contour_envoyproxy_repo}/envoy:${contour_envoyproxy_version} -o ${path}/file/contour-envoyproxy.tar
-podman save ${contour_demo_repo}/kuard-amd64:1 ${contour_demo_repo}/kuard-arm64:1 -o ${path}/file/contour-demo.tar
-rm -f ${path}/file/contour.tar.bz2
-rm -f ${path}/file/contour-envoyproxy.tar.bz2
-rm -f ${path}/file/contour-demo.tar.bz2
-bzip2 -z --best ${path}/file/contour.tar
-bzip2 -z --best ${path}/file/contour-envoyproxy.tar
-bzip2 -z --best ${path}/file/contour-demo.tar
-
-echo "=== contour and envoyproxy images are saved successfully ==="
 
 export CPUArch=$(uname -m | awk '{ if ($1 == "x86_64") print "amd64"; else if ($1 == "aarch64") print "arm64"; else print $1 }')
 

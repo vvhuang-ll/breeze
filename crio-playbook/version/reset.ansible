@@ -26,3 +26,9 @@
     - cri-o
     - podman
     when: ansible_distribution =="Ubuntu"
+
+  - name: Delete all wise2c
+    file:
+      path: "/opt/wise2c"
+      state: absent
+    when: ansible_distribution =="Ubuntu"

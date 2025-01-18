@@ -13,9 +13,13 @@
   shell: |
     podman load -i '{{ path }}/{{ item }}'
   with_items:
-    - k8s.tar.bz2
+    - kube-apiserver.tar.bz2
+    - kube-controller-manager.tar.bz2
+    - kube-scheduler.tar.bz2
+    - kube-proxy.tar.bz2
+    - pause.tar.bz2
+    - coredns.tar.bz2
     - flannel.tar.bz2
-    - dashboard.tar.bz2
     - metrics-server.tar.bz2
   async: 600
   poll: 5
@@ -42,7 +46,6 @@
   - { repo: '{{ kubernetes_repo }}', name: 'coredns', tag: '{{ dns_version }}' }
   - { repo: '{{ metrics_server_repo }}/metrics-server', name: 'metrics-server', tag: '{{ metrics_server_version }}' }
   - { repo: '{{ flannel_repo }}', name: 'flannel', tag: '{{ flannel_version }}' }
-  - { repo: '{{ dashboard_repo }}', name: 'dashboard', tag: '{{ dashboard_version }}' }
   run_once: true
 
 - name: push images
@@ -61,7 +64,6 @@
   - { repo: '{{ kubernetes_repo }}', name: 'coredns', tag: '{{ dns_version }}' }
   - { repo: '{{ metrics_server_repo }}/metrics-server', name: 'metrics-server', tag: '{{ metrics_server_version }}' }
   - { repo: '{{ flannel_repo }}', name: 'flannel', tag: '{{ flannel_version }}' }
-  - { repo: '{{ dashboard_repo }}', name: 'dashboard', tag: '{{ dashboard_version }}' }
   run_once: true
 
 - name: Remove registry.k8s.io images tag
@@ -78,7 +80,6 @@
   - { repo: '{{ kubernetes_repo }}', name: 'coredns', tag: '{{ dns_version }}' }
   - { repo: '{{ metrics_server_repo }}/metrics-server', name: 'metrics-server', tag: '{{ metrics_server_version }}' }
   - { repo: '{{ flannel_repo }}', name: 'flannel', tag: '{{ flannel_version }}' }
-  - { repo: '{{ dashboard_repo }}', name: 'dashboard', tag: '{{ dashboard_version }}' }
   run_once: true
 
 - name: clean up podman temporary files

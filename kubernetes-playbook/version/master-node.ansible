@@ -22,14 +22,14 @@
     src: '{{ item.src }}'
     dest: '{{ item.dest }}'
   with_items:
-  - { src: 'file/k8s.tar.bz2', dest: '{{ path }}' }
+  - { src: 'file/kube-apiserver.tar.bz2', dest: '{{ path }}' }
+  - { src: 'file/kube-controller-manager.tar.bz2', dest: '{{ path }}' }
+  - { src: 'file/kube-scheduler.tar.bz2', dest: '{{ path }}' }
+  - { src: 'file/kube-proxy.tar.bz2', dest: '{{ path }}' }
+  - { src: 'file/pause.tar.bz2', dest: '{{ path }}' }
+  - { src: 'file/coredns.tar.bz2', dest: '{{ path }}' }
   - { src: 'file/flannel.tar.bz2', dest: '{{ path }}' }
-  - { src: 'file/dashboard.tar.bz2', dest: '{{ path }}' }
-  - { src: 'file/metrics-scraper.tar.bz2', dest: '{{ path }}' }
   - { src: 'file/metrics-server.tar.bz2', dest: '{{ path }}' }
-  - { src: 'file/contour.tar.bz2', dest: '{{ path }}' }
-  - { src: 'file/contour-envoyproxy.tar.bz2', dest: '{{ path }}' }
-  - { src: 'file/contour-demo.tar.bz2', dest: '{{ path }}' }
   run_once: true
 
 - name: copy calico folder
@@ -51,14 +51,14 @@
   shell: |
     podman load -i '{{ path }}/{{ item }}'
   with_items:
-    - k8s.tar.bz2
+    - kube-apiserver.tar.bz2
+    - kube-controller-manager.tar.bz2
+    - kube-scheduler.tar.bz2
+    - kube-proxy.tar.bz2
+    - pause.tar.bz2
+    - coredns.tar.bz2
     - flannel.tar.bz2
-    - dashboard.tar.bz2
-    - metrics-scraper.tar.bz2
     - metrics-server.tar.bz2
-    - contour.tar.bz2
-    - contour-envoyproxy.tar.bz2
-    - contour-demo.tar.bz2
     - calico/images/calico-cni.tar.bz2
     - calico/images/calico-kube-controllers.tar.bz2
     - calico/images/calico-node.tar.bz2
@@ -96,11 +96,6 @@
     - { repo: 'calico', name: 'typha', tag: '{{ calico_version }}' }
     - { repo: 'calico', name: 'pod2daemon-flexvol', tag: '{{ calico_version }}' }
     - { repo: 'calico', name: 'ctl', tag: '{{ calico_version }}' }
-    - { repo: '{{ dashboard_repo }}', name: 'dashboard', tag: '{{ dashboard_version }}' }
-    - { repo: '{{ dashboard_repo }}', name: 'metrics-scraper', tag: '{{ metrics_scraper_version }}' }
-    - { repo: '{{ contour_repo }}', name: 'contour', tag: '{{ contour_version }}' }
-    - { repo: '{{ contour_envoyproxy_repo }}', name: 'envoy', tag: '{{ contour_envoyproxy_version }}' }
-    - { repo: '{{ contour_demo_repo }}', name: 'kuard-amd64', tag: '1' }
   run_once: true
 
 - name: tag coredns image
@@ -134,10 +129,6 @@
   - { name: 'typha', tag: '{{ calico_version }}' }
   - { name: 'pod2daemon-flexvol', tag: '{{ calico_version }}' }
   - { name: 'ctl', tag: '{{ calico_version }}' }
-  - { name: 'dashboard', tag: '{{ dashboard_version }}' }
-  - { name: 'metrics-scraper', tag: '{{ metrics_scraper_version }}' }
-  - { name: 'contour', tag: '{{ contour_version }}' }
-  - { name: 'envoy', tag: '{{ contour_envoyproxy_version }}' }
   - { name: 'kuard-amd64', tag: '1' }
   run_once: true
 
@@ -163,11 +154,6 @@
   - { repo: 'calico', name: 'typha', tag: '{{ calico_version }}' }
   - { repo: 'calico', name: 'pod2daemon-flexvol', tag: '{{ calico_version }}' }
   - { repo: 'calico', name: 'ctl', tag: '{{ calico_version }}' }
-  - { repo: '{{ dashboard_repo }}', name: 'dashboard', tag: '{{ dashboard_version }}' }
-  - { repo: '{{ dashboard_repo }}', name: 'metrics-scraper', tag: '{{ metrics_scraper_version }}' }
-  - { repo: '{{ contour_repo }}', name: 'contour', tag: '{{ contour_version }}' }
-  - { repo: '{{ contour_envoyproxy_repo }}', name: 'envoy', tag: '{{ contour_envoyproxy_version }}' }
-  - { repo: '{{ contour_demo_repo }}', name: 'kuard-amd64', tag: '1' }
   run_once: true
 
 - name: clean up podman temporary files
@@ -193,11 +179,8 @@
   with_items:
   - { src: 'template/kubeadm.conf.j2', dest: '{{ path }}/kubeadm.conf' }
   - { src: 'template/kube-flannel.yml.j2', dest: '{{ path }}/kube-flannel.yml' }
-  - { src: 'template/kubernetes-dashboard.yml.j2', dest: '{{ path }}/kubernetes-dashboard.yml' }
-  - { src: 'template/kubernetes-dashboard-svc.yml.j2', dest: '{{ path }}/kubernetes-dashboard-svc.yml' }
   - { src: 'template/metrics-server-deployment.yaml.j2', dest: '{{ path }}/metrics-server/metrics-server-deployment.yaml' }
-  - { src: 'template/contour.yml.j2', dest: '{{ path }}/contour.yml' }
-  - { src: 'template/contour-demo.yml.j2', dest: '{{ path }}/contour-demo.yml' }
+
 
 - name: replace pod cidr 10.244.0.0/16 in kubeadm.conf files
   replace:
@@ -525,10 +508,6 @@
 
 - name: apply addons
   shell: |
-    kubectl apply -f {{ path }}/kubernetes-dashboard.yml
-    kubectl apply -f {{ path }}/kubernetes-dashboard-svc.yml
-    kubectl apply -f {{ path }}/contour.yml
-    kubectl apply -f {{ path }}/contour-demo.yml
     kubectl apply -f {{ path }}/metrics-server/metrics-server-deployment.yaml
   run_once: true
 
@@ -555,18 +534,6 @@
     podman rm -f $(podman ps -a |grep kube-controller-manager |awk '{print $1}')
     podman rm -f $(podman ps -a |grep kube-scheduler |awk '{print $1}')
     systemctl restart kubelet
-
-- name: execute prometheus-fix-master-nodes script for Redhat/CentOS
-  shell: ./prometheus-fix-master-nodes.sh
-  args:
-    chdir: '{{ path }}'
-  when: (ansible_distribution == "RedHat") or (ansible_distribution == "CentOS") or (ansible_distribution == "Rocky") or (ansible_distribution == "AlmaLinux") or (ansible_distribution == "OracleLinux") or (ansible_distribution == "Anolis")
-
-- name: execute prometheus-fix-master-nodes script for Ubuntu
-  shell: ./prometheus-fix-master-nodes-ubuntu.sh
-  args:
-    chdir: '{{ path }}'
-  when: ansible_distribution =="Ubuntu"
 
 - name: copy helm binary
   copy:

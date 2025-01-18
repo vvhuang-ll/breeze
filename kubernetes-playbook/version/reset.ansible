@@ -45,17 +45,8 @@
       ip link delete flannel.1
     ignore_errors: true
 
-  - name: delete all kubernetes certificates
+  - name: delete kubernetes directory
     file:
-      path: "/etc/kubernetes/pki"
+      path: "/etc/kubernetes"
       state: absent
-      recurse: yes
-    when: ansible_distribution == "Ubuntu" or ansible_distribution == "RedHat"
-
-
-  - name: delete all wise2c
-    file:
-      path: "/opt/wise2c"
-      state: absent
-      recurse: yes
-    when: ansible_distribution == "Ubuntu" or ansible_distribution == "RedHat"
+    when: ansible_distribution =="Ubuntu"
